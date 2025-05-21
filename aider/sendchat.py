@@ -44,7 +44,7 @@ def send_with_retries(model_name, messages, functions, stream):
     # Check if it's a Claude model
     if model_name.startswith("claude-"):
         return send_with_anthropic(model_name, messages, functions, stream)
-    
+
     # Otherwise, use OpenAI
     kwargs = dict(
         model=model_name,
@@ -83,37 +83,37 @@ def send_with_retries(model_name, messages, functions, stream):
 def send_with_anthropic(model_name, messages, functions, stream):
     """Send a request to the Anthropic API for Claude models."""
     global ANTHROPIC_CLIENT
-    
+
     # Initialize the Anthropic client if not already done
     if ANTHROPIC_CLIENT is None:
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         ANTHROPIC_CLIENT = AnthropicClient(api_key)
-    
+
     # Convert functions to Anthropic's tool format if needed
     # Note: As of now, Claude's function calling is different from OpenAI's
     # This is a simplified implementation that may need to be updated
     # when using functions with Claude
-    
+
     kwargs = dict(
         model=model_name,
         messages=messages,
         temperature=0,
         stream=stream,
     )
-    
+
     # Generate a cache key
     key = json.dumps(kwargs, sort_keys=True).encode()
     hash_object = hashlib.sha1(key)
-    
+
     if not stream and CACHE is not None and key in CACHE:
         return hash_object, CACHE[key]
-    
+
     # Call the Anthropic API
     res = ANTHROPIC_CLIENT.create_chat_completion(**kwargs)
-    
+
     if not stream and CACHE is not None:
         CACHE[key] = res
-    
+
     return hash_object, res
 
 

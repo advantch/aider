@@ -6,7 +6,7 @@ from .model import Model
 class ClaudeModel(Model):
     def __init__(self, name):
         self.name = name
-        
+
         # Map Claude model names to their context window sizes (in tokens)
         claude_models = {
             "claude-3-opus-20240229": 200,  # 200k tokens
@@ -16,7 +16,7 @@ class ClaudeModel(Model):
             "claude-2.0": 100,  # 100k tokens
             "claude-instant-1.2": 100,  # 100k tokens
         }
-        
+
         # Check if the model name is in our known Claude models
         if name in claude_models:
             tokens = claude_models[name]
@@ -26,18 +26,18 @@ class ClaudeModel(Model):
                 tokens = 100
             else:
                 raise ValueError(f"Unknown Claude model: {name}")
-        
+
         self.max_context_tokens = tokens * 1024
-        
+
         # Use cl100k_base tokenizer as an approximation for Claude
         # This is not perfect but should be close enough for token counting
         self.tokenizer = tiktoken.get_encoding("cl100k_base")
-        
+
         # Claude models are good at following instructions, so use diff format
         self.edit_format = "diff"
         self.use_repo_map = True
         self.send_undo_reply = True
-        
+
         # Set pricing based on model
         if name == "claude-3-opus-20240229":
             self.prompt_price = 0.015  # $15 per million tokens
@@ -64,7 +64,6 @@ class ClaudeModel(Model):
             self.prompt_price = 0.008
             self.completion_price = 0.024
             self.max_chat_history_tokens = 4 * 1024
-    
+
     def is_claude(self):
         return True
-

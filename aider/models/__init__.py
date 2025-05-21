@@ -1,7 +1,7 @@
+from .claude import ClaudeModel
 from .model import Model
 from .openai import OpenAIModel
 from .openrouter import OpenRouterModel
-from .claude import ClaudeModel
 
 GPT4 = Model.create("gpt-4")
 GPT35 = Model.create("gpt-3.5-turbo")

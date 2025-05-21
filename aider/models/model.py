@@ -19,14 +19,14 @@ class Model:
 
     @classmethod
     def create(cls, name):
+        from .claude import ClaudeModel
         from .openai import OpenAIModel
         from .openrouter import OpenRouterModel
-        from .claude import ClaudeModel
 
         # Check if it's a Claude model
         if name.startswith("claude-"):
             return ClaudeModel(name)
-            
+
         if "openrouter.ai" in openai.api_base:
             return OpenRouterModel(name)
         return OpenAIModel(name)

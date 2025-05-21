@@ -516,11 +516,13 @@ def main(argv=None, input=None, output=None, force_git_root=None):
     if args.model.startswith("claude-") and not args.anthropic_api_key:
         if os.name == "nt":
             io.tool_error(
-                "No Anthropic API key provided for Claude model. Use --anthropic-api-key or setx ANTHROPIC_API_KEY."
+                "No Anthropic API key provided for Claude model. Use --anthropic-api-key or setx"
+                " ANTHROPIC_API_KEY."
             )
         else:
             io.tool_error(
-                "No Anthropic API key provided for Claude model. Use --anthropic-api-key or export ANTHROPIC_API_KEY."
+                "No Anthropic API key provided for Claude model. Use --anthropic-api-key or export"
+                " ANTHROPIC_API_KEY."
             )
         return 1
 
@@ -532,7 +534,7 @@ def main(argv=None, input=None, output=None, force_git_root=None):
             mod_key = f"api_{attr}"
             setattr(openai, mod_key, val)
             io.tool_output(f"Setting openai.{mod_key}={val}")
-    
+
     # Store Anthropic API key in environment if provided
     if args.anthropic_api_key:
         os.environ["ANTHROPIC_API_KEY"] = args.anthropic_api_key
