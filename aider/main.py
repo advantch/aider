@@ -146,6 +146,12 @@ def main(argv=None, input=None, output=None, force_git_root=None):
         env_var="OPENAI_API_KEY",
     )
     core_group.add_argument(
+        "--anthropic-api-key",
+        metavar="ANTHROPIC_API_KEY",
+        help="Specify the Anthropic API key (for Claude models)",
+        env_var="ANTHROPIC_API_KEY",
+    )
+    core_group.add_argument(
         "--model",
         metavar="MODEL",
         default=models.GPT4.name,
@@ -163,6 +169,20 @@ def main(argv=None, input=None, output=None, force_git_root=None):
         dest="model",
         const=models.GPT35_16k.name,
         help=f"Use {models.GPT35_16k.name} model for the main chat (gpt-4 is better)",
+    )
+    core_group.add_argument(
+        "--claude-sonnet",
+        action="store_const",
+        dest="model",
+        const=models.CLAUDE3_SONNET.name,
+        help=f"Use {models.CLAUDE3_SONNET.name} model for the main chat",
+    )
+    core_group.add_argument(
+        "--claude-haiku",
+        action="store_const",
+        dest="model",
+        const=models.CLAUDE3_HAIKU.name,
+        help=f"Use {models.CLAUDE3_HAIKU.name} model for the main chat",
     )
     core_group.add_argument(
         "--voice-language",
@@ -492,6 +512,18 @@ def main(argv=None, input=None, output=None, force_git_root=None):
             )
         return 1
 
+    # Check if using Claude model but no Anthropic API key
+    if args.model.startswith("claude-") and not args.anthropic_api_key:
+        if os.name == "nt":
+            io.tool_error(
+                "No Anthropic API key provided for Claude model. Use --anthropic-api-key or setx ANTHROPIC_API_KEY."
+            )
+        else:
+            io.tool_error(
+                "No Anthropic API key provided for Claude model. Use --anthropic-api-key or export ANTHROPIC_API_KEY."
+            )
+        return 1
+
     openai.api_key = args.openai_api_key
     for attr in ("base", "type", "version", "deployment_id", "engine"):
         arg_key = f"openai_api_{attr}"
@@ -500,6 +532,11 @@ def main(argv=None, input=None, output=None, force_git_root=None):
             mod_key = f"api_{attr}"
             setattr(openai, mod_key, val)
             io.tool_output(f"Setting openai.{mod_key}={val}")
+    
+    # Store Anthropic API key in environment if provided
+    if args.anthropic_api_key:
+        os.environ["ANTHROPIC_API_KEY"] = args.anthropic_api_key
+        io.tool_output("Anthropic API key set in environment")
 
     main_model = models.Model.create(args.model)
 
